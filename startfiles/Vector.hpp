@@ -35,9 +35,38 @@ public:
         return (*this);
     }
 
+    const Vector<T>& operator +(T elem) const{
+        for(int i=0;i<this->current;i++){
+            this->container[i]+=elem;
+        }
+        return (*this);
+    }
+    const Vector<T>& operator -(T elem) const{
+        for(int i=0;i<this->current;i++){
+            this->container[i]-=elem;
+        }
+        return (*this);
+    }
+    const Vector<T>& operator *(T elem) const{
+        for(int i=0;i<this->current;i++){
+            this->container[i]*=elem;
+        }
+        return (*this);
+    }
+    const Vector<T>& operator /(T elem) const{
+        for(int i=0;i<this->current;i++){
+            this->container[i]/=elem;
+        }
+        return (*this);
+    }
+
     Vector<T> reverse();
 
     double magnitude();
+
+    template<typename U> friend Vector<T> square();
+
+    template<typename U> friend Vector<T> cube();
 
 
 
@@ -46,6 +75,30 @@ public:
 
 
 };
+
+template<typename T>
+Vector<T> square(Vector<T> vec){
+    if(!std::is_arithmetic_v<T>){
+        throw std::invalid_argument("Type not suitable for exponentiation");
+    }
+    Vector<T> res;
+    for(int i=0;i<vec.size();i++){
+        res[i]=vec[i]*vec[i];
+    }
+    return res;
+}
+
+template<typename T>
+Vector<T> cube(Vector<T> vec){
+    if(!std::is_arithmetic_v<T>){
+        throw std::invalid_argument("Type not suitable for exponentiation");
+    }
+    Vector<T> res;
+    for(int i=0;i<vec.size();i++){
+        res[i]=vec[i]*vec[i]*vec[i];
+    }
+    return res;
+}
 
 
 
