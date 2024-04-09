@@ -59,16 +59,13 @@ public:
         current = capacity;
     }
 
-    Vector_scratch(Vector_scratch &copy)
-    {
-        capacity = copy.capacity;
+    Vector_scratch(const Vector_scratch<T>& other) : capacity(other.capacity), current(other.current) {
         container = new T[capacity];
-        current = copy.current;
-        for (int i = 0; i < current; i++)
-        {
-            container[i] = copy.container[i];
+        for (int i = 0; i < current; ++i) {
+            container[i] = other.container[i];
         }
     }
+
 
     void print()
     {
@@ -139,7 +136,13 @@ public:
         }
         return container[index];
     }
-
+    
+    const T& operator[](int index) const{
+        if (index < 0 || index >= current) {
+            throw std::out_of_range("Index out of range");
+        }
+        return container[index];
+    }
     int size()
     {
         return current;
