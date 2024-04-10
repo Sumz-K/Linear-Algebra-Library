@@ -172,6 +172,30 @@ public:
             }
             return sum;
     }
+    
+    template <int SlicedRows, int SlicedCols>
+    Matrix<T, SlicedRows, SlicedCols> slice(int startrow, int endrow, int startcol, int endcol)
+    {
+        static_assert(SlicedRows >= 0 && SlicedCols >= 0,
+        "Invalid slice size");
+
+        Matrix<T, SlicedRows, SlicedCols> res;
+        if(SlicedRows!=endrow-startrow || SlicedCols!=endcol-startcol){
+            cout<<"Invalid slicing\n";
+            return res;
+        }
+
+        
+
+        for (int i = startrow; i < endrow && i - startrow < SlicedRows; ++i)
+        {
+            for (int j = startcol; j < endcol && j - startcol < SlicedCols; ++j)
+            {
+                res[i - startrow][j - startcol] = data[i][j];
+            }
+        }
+        return res;
+    }
 
     
 
