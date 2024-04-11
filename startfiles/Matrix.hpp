@@ -1,13 +1,28 @@
 #include "Vector.hpp"
 #include <stdexcept>
 using namespace std;
+
+
+namespace concepthelper{
+    template<typename T>
+    concept Arithmetic=std::is_arithmetic_v<T>;
+
+    template<typename T,typename U>
+    concept Same=std::is_same_v<T,U>;
+}
+
+
 template<typename T, int Rows, int Cols>
+requires concepthelper::Arithmetic<T>
+
 class Matrix {
 private:
     Vector<Vector<T>> data;
+    int rows;
+    int cols;
 
 public:
-    Matrix() : data(Rows) {
+    Matrix() : data(Rows),rows(Rows),cols(Cols) {
         for (int i = 0; i < Rows; ++i) {
             data[i] = Vector<T>(Cols);
         }
@@ -33,11 +48,11 @@ public:
     }
 
     int numRows() const {
-        return Rows;
+        return rows;
     }
 
     int numCols() const {
-        return Cols;
+        return cols;
     }
 
     Vector<T>& operator[](int index) {
@@ -203,13 +218,7 @@ public:
 
 };
 
-namespace concepthelper{
-    template<typename T>
-    concept Arithmetic=std::is_arithmetic_v<T>;
 
-    template<typename T,typename U>
-    concept Same=std::is_same_v<T,U>;
-}
 
 
 template<typename T,typename U,int r1,int c1,int r2,int c2>
@@ -227,3 +236,43 @@ Matrix<T,r1,c2> multiply(Matrix<T,r1,c1> m1, Matrix<U,r2,c2> m2){
 }
 
 
+
+template<typename T,int r,int c>
+requires concepthelper::Arithmetic<T>
+Matrix<T,r,c> zeros(){
+    Matrix<T,r,c> m;
+    for(int i=0;i<r;i++){
+        for(int j=0;j<c;j++){
+            m[i][j]=static_cast<T>(0);
+        }
+    }
+    return m;
+}
+
+
+template<typename T,int r,int c>
+requires concepthelper::Arithmetic<T>
+Matrix<T,r,c> ones(){
+    Matrix<T,r,c> m;
+    for(int i=0;i<r;i++){
+        for(int j=0;j<c;j++){
+            m[i][j]=static_cast<T>(1);
+        }
+    }
+    return m;
+}
+
+template<typename T,int r,int c>
+requires concepthelper::Arithmetic<T> && (r==c)
+Matrix<T,r,c> identitymatrix(){
+    Matrix<T,r,c> m;
+    for(int i=0;i<r;i++){
+        for(int j=0;j<c;j++){
+            if(i==j)
+                m[i][j]=static_cast<T>(1);
+            else 
+                m[i][j]=static_cast<T>(0);
+        }
+    }
+    return m;
+}
