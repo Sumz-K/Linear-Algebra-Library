@@ -145,6 +145,8 @@ public:
         return result;
     }
 
+
+
     Matrix<T, Cols, Rows> transpose() const {
         Matrix<T, Cols, Rows> result;
         for (int i = 0; i < Cols; ++i) {
@@ -200,5 +202,28 @@ public:
     
 
 };
+
+namespace concepthelper{
+    template<typename T>
+    concept Arithmetic=std::is_arithmetic_v<T>;
+
+    template<typename T,typename U>
+    concept Same=std::is_same_v<T,U>;
+}
+
+
+template<typename T,typename U,int r1,int c1,int r2,int c2>
+requires concepthelper::Arithmetic<T> && concepthelper::Arithmetic<U> && concepthelper:: Same<T,U> && (c1==r2)
+Matrix<T,r1,c2> multiply(Matrix<T,r1,c1> m1, Matrix<U,r2,c2> m2){
+    Matrix<T,r1,c2> res;
+    for(int i=0;i<r1;i++){
+        for(int j=0;j<c2;j++){
+            for(int k=0;k<r2;k++){
+                res[i][j] += m1[i][k] * m2[k][j];
+            }
+        }
+    }
+    return res;
+}
 
 
