@@ -22,10 +22,11 @@ private:
     int cols;
 
 public:
-    Matrix() : data(Rows),rows(Rows),cols(Cols) {
+    Matrix() : data(Rows){
         for (int i = 0; i < Rows; ++i) {
             data[i] = Vector<T>(Cols);
         }
+        
     }
 
     Matrix(const Matrix<T, Rows, Cols>& other) : data(other.data) {}
@@ -48,11 +49,11 @@ public:
     }
 
     int numRows() const {
-        return rows;
+        return Rows;
     }
 
     int numCols() const {
-        return cols;
+        return Cols;
     }
 
     Vector<T>& operator[](int index) {
@@ -213,6 +214,19 @@ public:
         }
         return res;
     }
+
+    void sort(){
+        
+        for(int i=0;i<Rows;i++){
+            Vector<int>rowvec=(*this)[i];
+            rowvec.sort();
+            
+            (*this)[i]=rowvec;
+        }
+        
+    }
+
+    
 
     
 
