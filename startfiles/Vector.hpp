@@ -68,13 +68,97 @@ public:
 
     template<typename U> friend Vector<T> cube();
 
+    void sort(){
+        int left=0;
+        int right=this->size()-1;
+        sorthelper(left,right);
+        
+    }
+
+    void sorthelper(int left,int right){
+        if(left<right){
+            int mid=left+(right-left)/2;
+            sorthelper(left,mid);
+            sorthelper(mid+1,right);
+            merge(left,mid,right);
+        }
+    }
+
+    void merge(int left, int mid, int right){
+        Vector<T> left_subarr(mid - left + 1);
+        Vector<T> right_subarr(right - mid);
+
+        for (int i = left; i <= mid; i++){
+            left_subarr.push_back(this->container[i]);
+        }
+        for (int i = mid + 1; i <= right; i++){
+            right_subarr.push_back(this->container[i]);
+        }
+
+        int i = 0;
+        int j = 0;
+        int res = left;
+
+        while (i < left_subarr.size() && j < right_subarr.size()){
+            if (left_subarr[i] < right_subarr[j]){
+                this->container[res++] = left_subarr[i++];
+            }
+            else{
+                this->container[res++] = right_subarr[j++];
+            }
+        }
 
 
+        while (i < left_subarr.size()){
+            this->container[res++] = left_subarr[i++];
+        }
 
+
+        while (j < right_subarr.size()){
+            this->container[res++] = right_subarr[j++];
+        }
+    }
 
 
 
 };
+
+
+
+
+
+template<typename T>
+
+double euclid_distance(Vector<T>v1,Vector<T>v2){
+    if(v1.size()!=v2.size()){
+        throw std::invalid_argument("Vectors must have the same number of elements to calculate euclidean distance\n");
+
+
+    }
+    else{
+        double dist=0.0;
+        for(int i=0;i<v1.size();i++){
+            dist+=pow((v1[i]-v2[i]),2);
+        }
+        return sqrt(dist);
+    }
+}
+
+template<typename T>
+T manhattan_distance(Vector<T> v1,Vector<T> v2){
+    if(v1.size()!=v2.size()){
+        throw std::invalid_argument("Vectors must have the same number of elements to calculate euclidean distance");
+
+
+    }
+    else{
+        T dist=0;
+        for(int i=0;i<v1.size();i++){
+            dist+=abs(v1[i]-v2[i]);
+        }
+        return static_cast<T>(dist);
+    }
+}
 
 template<typename T>
 Vector<T> square(Vector<T> vec){
@@ -83,7 +167,7 @@ Vector<T> square(Vector<T> vec){
     }
     Vector<T> res;
     for(int i=0;i<vec.size();i++){
-        res[i]=vec[i]*vec[i];
+        res[i]=vec.container[i]*vec.container[i];
     }
     return res;
 }
@@ -95,7 +179,7 @@ Vector<T> cube(Vector<T> vec){
     }
     Vector<T> res;
     for(int i=0;i<vec.size();i++){
-        res[i]=vec[i]*vec[i]*vec[i];
+        res[i]=vec.container[i]*vec.container[i]*vec.container[i];
     }
     return res;
 }
