@@ -276,3 +276,40 @@ Matrix<T,r,c> identitymatrix(){
     }
     return m;
 }
+
+
+template<typename T>
+requires concepthelper::Arithmetic<T>
+T determinant(Matrix<T, 2, 2> mat){
+    return mat[0][0]*mat[1][1]-mat[0][1]*mat[1][0];
+}
+
+template<typename T, int Rows, int Cols>
+requires concepthelper::Arithmetic<T> && (Rows == Cols) && (Rows > 2)
+T determinant(const Matrix<T, Rows, Cols>& mat) {
+    T det = static_cast<T>(0);
+
+    for (int i = 0; i <Cols; ++i) {
+        Matrix<T,Rows-1,Cols-1> minor;
+        for(int j=1;j<Rows;j++){
+            for(int k=0;k<Cols;k++){
+                if(i==k) continue;
+                else if(k<i){
+                    minor[j-1][k]=mat[j][k];
+                }
+                else if(k>i){
+                    minor[j-1][k-1]=mat[j][k];
+                }
+            }
+        }
+        T temp_det=determinant(minor);
+        if(i%2==0){
+            det+=temp_det*mat[0][i];
+        }
+        else{
+            det-=temp_det*mat[0][i];
+        }
+    }
+
+    return det;
+}
