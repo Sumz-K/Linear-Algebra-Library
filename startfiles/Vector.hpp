@@ -1,6 +1,6 @@
 #include"Vector_scratch.hpp"
 #include<type_traits>
-
+#include"Map.hpp"
 #include<math.h>
 
 
@@ -121,9 +121,34 @@ public:
 
 
 
+
 };
 
 
+
+template<typename T>
+double mean(Vector<T> vec){
+    double sum=0;
+    for(int i=0;i<vec.size();i++){
+        sum+=vec[i];
+    }
+    return sum/vec.size();
+}
+
+template<typename T>
+double median(Vector<T> vec){
+    vec.sort();
+    int left=0;
+    int right=vec.size()-1;
+    while(left<right){
+        left+=1;
+        right-=1;
+    }
+    if(left==right){
+        return static_cast<double>(vec[left]);
+    }
+    return static_cast<double>((vec[left]+vec[right])/2);
+}
 
 
 
