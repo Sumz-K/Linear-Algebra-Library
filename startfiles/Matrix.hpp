@@ -148,6 +148,20 @@ public:
     }
 
 
+    template<typename U>
+    Matrix<T, Rows, Cols> operator*(const U& scalar)  {
+        if constexpr (!is_arithmetic_v<U>){
+            throw std::invalid_argument("Cant multiply a scalar of this type\n");
+        }
+        Matrix<T,Rows,Cols>result;
+        for(int i=0;i<Rows;i++){
+            result[i]=data[i]*scalar;
+        }
+        return result;
+    }
+
+
+
 
     template<typename U>
     Matrix<T, Rows, Cols> operator/(const U& scalar) const {
@@ -159,6 +173,37 @@ public:
             result[i]=data[i]/scalar;
         }
         return result;
+    }
+
+    template<typename U>
+    Matrix<T, Rows, Cols> operator/(const U& scalar) {
+        if constexpr (!is_arithmetic_v<U>){
+            throw std::invalid_argument("Cant divide by a scalar of this type\n");
+        }
+        Matrix<T,Rows,Cols>result;
+        for(int i=0;i<Rows;i++){
+            result[i]=data[i]/scalar;
+        }
+        return result;
+    }
+
+    Matrix<T,Rows,Cols> operator^(int scalar) const{
+        Matrix<T,Rows,Cols> res=(*this);
+        while(scalar>1){
+            res=multiply(res,res);
+            scalar-=1;
+        }
+        return  res;
+
+    }
+    Matrix<T,Rows,Cols> operator^(int& scalar) {
+        Matrix<T,Rows,Cols> res=this;
+        while(scalar>0){
+            res=multiply(res,res);
+            scalar-=1;
+        }
+        return  res;
+
     }
 
 
