@@ -328,75 +328,39 @@ T determinant(const Matrix<T, Rows, Cols>& mat) {
     return det;
 }
 template<typename T, int Rows, int Cols>
-Matrix<T, Rows, Cols> gaussianElimination(Matrix<T, Rows, Cols>& mat) {
-    Matrix<T, Rows, Cols> identity = identitymatrix<T, Rows, Cols>();
-
-    for (int i = 0; i < Rows; ++i) {
-        T diagonalElement = mat[i][i];
-        for (int j = 0; j < Cols; ++j) {
-            mat[i][j] /= diagonalElement;
-            identity[i][j] /= diagonalElement;
-        }
-
-        for (int k = i + 1; k < Rows; ++k) {
-            T factor = mat[k][i];
-            for (int j = 0; j < Cols; ++j) {
-                mat[k][j] -= factor * mat[i][j];
-                identity[k][j] -= factor * identity[i][j];
-            }
-        }
-    }
-
-    for (int i = Rows - 1; i > 0; --i) {
-        for (int k = i - 1; k >= 0; --k) {
-            T factor = mat[k][i];
-            for (int j = 0; j < Cols; ++j) {
-                mat[k][j] -= factor * mat[i][j];
-                identity[k][j] -= factor * identity[i][j];
-            }
-        }
-    }
-
-    return identity;
+Matrix<T, Rows, Cols> inverse(Matrix<T, Rows, Cols>& mat) {
+    Matrix<T,Rows,Cols> inv=adjoint(mat)/determinant(mat);
+    return inv;
 }
-
 template<typename T, int Rows, int Cols>
-Matrix<T, Rows, Cols> adjoint(Matrix<T, Rows, Cols>& mat) {
-
-    Matrix<T, Rows, Cols> identity = identitymatrix<T, Rows, Cols>();
-
+Matrix<T, Rows, Cols> adjoint(const Matrix<T, Rows, Cols>& mat) {
+    Matrix<T, Rows, Cols> adj;
     for (int i = 0; i < Rows; ++i) {
-        T diagonalElement = mat[i][i];
         for (int j = 0; j < Cols; ++j) {
-            mat[i][j] /= diagonalElement;
-            identity[i][j] /= diagonalElement;
-        }
-
-        for (int k = i + 1; k < Rows; ++k) {
-            T factor = mat[k][i];
-            for (int j = 0; j < Cols; ++j) {
-                mat[k][j] -= factor * mat[i][j];
-                identity[k][j] -= factor * identity[i][j];
+            Matrix<T, Rows - 1, Cols - 1> minor;
+            int r = 0, c = 0;
+            for (int k = 0; k < Rows; ++k) {
+                if (k == i) continue;
+                for (int l = 0; l < Cols; ++l) {
+                    if (l == j) continue;
+                    minor[r][c] = mat[k][l];
+                    ++c;
+                }
+                ++r;
+                c = 0;
             }
+            T cofactor = determinant(minor);
+            if ((i + j) % 2 != 0) cofactor = -cofactor;
+            adj[j][i] = cofactor;
         }
     }
-
-    for (int i = Rows - 1; i > 0; --i) {
-        for (int k = i - 1; k >= 0; --k) {
-            T factor = mat[k][i];
-            for (int j = 0; j < Cols; ++j) {
-                mat[k][j] -= factor * mat[i][j];
-                identity[k][j] -= factor * identity[i][j];
-            }
-        }
-    }
-    return identity;
+    return adj;
 }
 
 int main(){
     Matrix<int, 3, 3> myMatrix;
-    int values[9] = {1,2,3,4,5,6,7,8,9};
-
+    // int values[9] = {6,2,3,3,1,1,10,3,4};
+    int values[9] = {2,1,1,1,1,1,1,-1,2};
         for (int i = 0; i < myMatrix.numRows(); ++i) {
             for (int j = 0; j < myMatrix.numCols(); ++j) {
             
@@ -404,7 +368,9 @@ int main(){
         }
     }
     myMatrix.print();
-    Matrix<int, 3,3> inv=adjoint(myMatrix);
+    Matrix<int, 3,3> adj=adjoint(myMatrix);
+    adj.print();
+    Matrix<int, 3,3> inv=inverse(myMatrix);
     inv.print();
 
 }
