@@ -328,7 +328,7 @@ T determinant(const Matrix<T, Rows, Cols>& mat) {
     return det;
 }
 template<typename T, int Rows, int Cols>
-Matrix<T, Rows, Cols> gaussianElimination(Matrix<T, Rows, Cols>& mat) {
+Matrix<T, Rows, Cols> inverse(Matrix<T, Rows, Cols>& mat) {
     Matrix<T, Rows, Cols> identity = identitymatrix<T, Rows, Cols>();
 
     for (int i = 0; i < Rows; ++i) {
@@ -361,34 +361,26 @@ Matrix<T, Rows, Cols> gaussianElimination(Matrix<T, Rows, Cols>& mat) {
 }
 
 template<typename T, int Rows, int Cols>
-Matrix<T, Rows, Cols> adjoint(Matrix<T, Rows, Cols>& mat) {
-
-    Matrix<T, Rows, Cols> identity = identitymatrix<T, Rows, Cols>();
-
+Matrix<T, Rows, Cols> adjoint(const Matrix<T, Rows, Cols>& mat) {
+    Matrix<T, Rows, Cols> adj;
     for (int i = 0; i < Rows; ++i) {
-        T diagonalElement = mat[i][i];
         for (int j = 0; j < Cols; ++j) {
-            mat[i][j] /= diagonalElement;
-            identity[i][j] /= diagonalElement;
-        }
-
-        for (int k = i + 1; k < Rows; ++k) {
-            T factor = mat[k][i];
-            for (int j = 0; j < Cols; ++j) {
-                mat[k][j] -= factor * mat[i][j];
-                identity[k][j] -= factor * identity[i][j];
+            Matrix<T, Rows - 1, Cols - 1> minor;
+            int r = 0, c = 0;
+            for (int k = 0; k < Rows; ++k) {
+                if (k == i) continue;
+                for (int l = 0; l < Cols; ++l) {
+                    if (l == j) continue;
+                    minor[r][c] = mat[k][l];
+                    ++c;
+                }
+                ++r;
+                c = 0;
             }
+            T cofactor = determinant(minor);
+            if ((i + j) % 2 != 0) cofactor = -cofactor;
+            adj[j][i] = cofactor;
         }
     }
-
-    for (int i = Rows - 1; i > 0; --i) {
-        for (int k = i - 1; k >= 0; --k) {
-            T factor = mat[k][i];
-            for (int j = 0; j < Cols; ++j) {
-                mat[k][j] -= factor * mat[i][j];
-                identity[k][j] -= factor * identity[i][j];
-            }
-        }
-    }
-    return identity;
+    return adj;
 }
