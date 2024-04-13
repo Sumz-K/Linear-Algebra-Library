@@ -327,3 +327,72 @@ T determinant(const Matrix<T, Rows, Cols>& mat) {
 
     return det;
 }
+
+
+
+template<typename T,int Rows,int Cols>
+requires (Rows==Cols && concepthelper::Arithmetic<T>)
+Matrix<T,Rows,Cols> cofactor(Matrix<T,Rows,Cols> mat){
+    Matrix<T,Rows,Cols> cf;
+    for(int i=0;i<Rows;i++){
+        for(int j=0;j<Cols;j++){
+            Matrix<T,Rows-1,Cols-1>minor;
+            int minorRow=0;
+            int minorCol=0;
+
+            for(int k=0;k<Rows;k++){
+                if(k==i) continue;
+                minorCol=0;
+                for(int l=0;l<Cols;l++){
+                    if(l==j) continue;
+                    minor[minorRow][minorCol]=mat[k][l];
+                    minorCol+=1;
+                }
+                minorRow+=1;
+            }
+            T minorDet=determinant(minor);
+
+            int sign=pow(-1,i+j+2);
+            cf[i][j]=minorDet*sign;
+
+        }
+    }
+    return cf;
+}
+
+
+template<typename T, int Rows, int Cols>
+requires (Rows==Cols && concepthelper::Arithmetic<T>)
+Matrix<T, Rows, Cols> adjoint(Matrix<T, Rows, Cols>& mat) {
+
+    Matrix<T,Rows,Cols> dummy=cofactor(mat);
+    Matrix<T,Rows,Cols>adj=dummy;
+    for(int i=0;i<Rows;i++){
+        for(int j=0;j<Cols;j++){
+            adj[i][j]=dummy[j][i];
+        }
+    }
+
+    return adj;
+
+
+}
+
+
+template<typename T,int Rows,int Cols>
+requires (Rows==Cols && concepthelper::Arithmetic<T>)
+Matrix<double,Rows,Cols> inverse(Matrix<T,Rows,Cols> mat){
+    double det=determinant(mat);
+
+    if(static_cast<int>(det)==0){
+        throw std::invalid_argument("This matrix is not invertible\n");
+    }
+    auto adj=adjoint(mat);
+    Matrix<double, Rows, Cols> result;
+    for(int i=0;i<Rows;i++){
+        for(int j=0;j<Cols;j++){
+            result[i][j] = static_cast<double>(adj[i][j]) / det;
+        }
+    }
+    return result;
+}
