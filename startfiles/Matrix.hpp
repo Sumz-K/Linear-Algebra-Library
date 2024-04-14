@@ -328,9 +328,19 @@ T determinant(const Matrix<T, Rows, Cols>& mat) {
     return det;
 }
 template<typename T, int Rows, int Cols>
-Matrix<T, Rows, Cols> inverse(Matrix<T, Rows, Cols>& mat) {
-    Matrix<T,Rows,Cols> inv=adjoint(mat)/determinant(mat);
-    return inv;
+requires (concepthelper::Arithmetic<T>)
+Matrix<T, Rows - 1, Cols - 1> minorf(const Matrix<T, Rows, Cols>& mat, int row, int col) {
+    Matrix<T, Rows - 1, Cols - 1> result;
+    for (int i = 0, r = 0; i < Rows; ++i) {
+        if (i == row) continue;
+        for (int j = 0, c = 0; j < Cols; ++j) {
+            if (j == col) continue;
+            result[r][c] = mat[i][j];
+            ++c;
+        }
+        ++r;
+    }
+    return result;
 }
 template<typename T, int Rows, int Cols>
 Matrix<T, Rows, Cols> adjoint(const Matrix<T, Rows, Cols>& mat) {
@@ -356,6 +366,67 @@ Matrix<T, Rows, Cols> adjoint(const Matrix<T, Rows, Cols>& mat) {
     }
     return adj;
 }
+template<typename T, int Rows, int Cols>
+Matrix<T, Rows, Cols> inverse(const Matrix<T, Rows, Cols>& mat) {
+    Matrix<T, Rows, Cols> adj = adjoint(mat);
+    T det =determinant(mat);
+    for (int i = 0; i < Rows; ++i) {
+        for (int j = 0; j < Cols; ++j) {
+            adj[i][j] /= det;
+        }
+    }
+    return adj;
+}
+template<typename T>
+requires concepthelper::Arithmetic<T>
+Matrix<T, 2, 1> solveQuadraticEquation(T a, T b, T c) {
+    Matrix<T, 2, 1> roots;
+    T discriminant = b * b - 4 * a * c;
+    if (discriminant < 0) {
+        throw std::invalid_argument("Complex roots are not supported");
+    }
+    roots[0][0] = (-b + std::sqrt(discriminant)) / (2 * a);
+    roots[1][0] = (-b - std::sqrt(discriminant)) / (2 * a);
+    return roots;
+}
+template<typename T>
+requires concepthelper::Arithmetic<T>
+Matrix<T, 3, 1> solveCubicEquation(T a, T b, T c, T d) {
+    Matrix<T, 3, 1> roots;
 
+    if (a == 0) {
+        throw std::invalid_argument("Not a cubic equation");
+    }
 
+    // Normalize coefficients
+    T inv_a = 1 / a;
+    b *= inv_a;
+    c *= inv_a;
+    d *= inv_a;
 
+    
+    T Q = (3 * b - pow(2 * c, 2)) / 9;
+    T R = (9 * b * c - 27 * d - 2 * pow(2 * c, 3)) / 54;
+    T D = pow(Q, 3) + pow(R, 2);
+
+    if (D >= 0) {
+        // Three real roots
+        T sqrt_D = sqrt(D);
+        T S = cbrt(R + sqrt_D);
+        T t = cbrt(R - sqrt_D);
+
+        roots[0][0] = -b / 3 + (S + t);
+        roots[1][0] = -b / 3 - (S + t) / 2;
+        roots[2][0] = roots[1][0];
+        roots[1][0] += (sqrt(3.0) * (S - t)) / 2;
+        roots[2][0] -= (sqrt(3.0) * (S - t)) / 2;
+    } else {
+        // One real root, two complex roots
+        T theta = acos(R / sqrt(-pow(Q, 3)));
+        roots[0][0] = -2 * sqrt(Q) * cos(theta / 3) - b / 3;
+        roots[1][0] = -2 * sqrt(Q) * cos((theta + 2 * M_PI) / 3) - b / 3;
+        roots[2][0] = -2 * sqrt(Q) * cos((theta - 2 * M_PI) / 3) - b / 3;
+    }
+
+    return roots;
+}
