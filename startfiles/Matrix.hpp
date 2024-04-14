@@ -441,3 +441,34 @@ Matrix<double,Rows,Cols> inverse(Matrix<T,Rows,Cols> mat){
     }
     return result;
 }
+
+
+
+template<typename T, int Rows, int Cols>
+requires (concepthelper::Arithmetic<T>)
+Matrix<T, Rows - 1, Cols - 1> minorf(const Matrix<T, Rows, Cols>& mat, int row, int col) {
+    Matrix<T, Rows - 1, Cols - 1> result;
+    for (int i = 0, r = 0; i < Rows; ++i) {
+        if (i == row) continue;
+        for (int j = 0, c = 0; j < Cols; ++j) {
+            if (j == col) continue;
+            result[r][c] = mat[i][j];
+            ++c;
+        }
+        ++r;
+    }
+    return result;
+}
+
+template<typename T>
+requires concepthelper::Arithmetic<T>
+Matrix<double, 2, 1> solveQuadraticEquation(T a, T b, T c) {
+    Matrix<double, 2, 1> roots;
+    T discriminant = b * b - 4 * a * c;
+    if (discriminant < 0) {
+        throw std::invalid_argument("Complex roots are not supported");
+    }
+    roots[0][0] = (-b + sqrt(discriminant)) / (2 * a);
+    roots[1][0] = (-b - sqrt(discriminant)) / (2 * a);
+    return roots;
+}
