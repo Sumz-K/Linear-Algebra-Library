@@ -434,43 +434,42 @@ Matrix<T, 3, 1> solveCubicEquation(T a, T b, T c, T d) {
 int main(){
     Matrix<int, 3, 3> myMatrix;
      //int values[9] = {6,2,3,3,1,1,10,3,4};
-    int values[9] = {1,6,2,3,7,1,2,3,5};
+    //int values[9] = {1,6,2,3,7,1,2,3,5};
     //int values[9]={1,2,3,4,5,6,7,8,9};
+    int values[9]={4,6,10,3,10,13,-2,-6,-8};
         for (int i = 0; i < myMatrix.numRows(); ++i) {
             for (int j = 0; j < myMatrix.numCols(); ++j) {
             
                 myMatrix[i][j] = values[i*3+j];
         }
     }
-        myMatrix.print();
+    myMatrix.print();
     Matrix<int, 3,3> adj=adjoint(myMatrix);
-    adj.print();
+    //adj.print();
     Matrix<int, 3,3> inv=inverse(myMatrix);
-    inv.print();
+    //inv.print();
     Matrix<int,2,2> my2d;
-    int values2[4] = {1,6,2,3};
-        for (int i = 0; i < myMatrix.numRows(); ++i) {
-            for (int j = 0; j < myMatrix.numCols(); ++j) {
+    int values2[4] = {2,0,1,3};
+        for (int i = 0; i < my2d.numRows(); ++i) {
+            for (int j = 0; j < my2d.numCols(); ++j) {
             
-                myMatrix[i][j] = values2[i*3+j];
+                my2d[i][j] = values2[i*2+j];
         }
     }
     int a = 1;
-    int b = -(my2d(0, 0) + my2d(1, 1));
-    int c = my2d(0, 0) * my2d(1, 1) - my2d(0, 1) * my2d(1, 0);
+    int b = -(my2d[0][0] + my2d[1][1]);
+    int c = my2d[0][0] * my2d[1][1] - my2d[0][1] * my2d[1][0];
+    //my2d.print();
     Matrix<int, 2, 1> eigen2=solveQuadraticEquation(a,b,c);
-    eigen2.print();
+    //eigen2.print();
     int a1 = 1;
-    int b1 = -myMatrix(1,1)-myMatrix(2,2)-myMatrix(0,0);
-    int c1 = determinant(minorf(myMatrix, 1, 1)) * determinant(minorf(myMatrix, 2, 2))
-    - determinant(minorf(myMatrix, 1, 2)) * determinant(minorf(myMatrix, 2, 1))
-    + determinant(minorf(myMatrix, 0, 0)) * determinant(minorf(myMatrix, 2, 2))
-    - determinant(minorf(myMatrix, 0, 2)) * determinant(minorf(myMatrix, 2, 0))
-    + determinant(minorf(myMatrix, 0, 0)) * determinant(minorf(myMatrix, 1, 1))
-    - determinant(minorf(myMatrix, 0, 1)) * determinant(minorf(myMatrix, 1, 0));
+    int b1 = -myMatrix[1][1]-myMatrix[2][2]-myMatrix[0][0];
+    int c1 = determinant(minorf(myMatrix, 0, 0))+determinant(minorf(myMatrix, 1, 1))+determinant(minorf(myMatrix, 2, 2));
     int d1 = -determinant(myMatrix);
     Matrix<int,3,1> eigen3=solveCubicEquation(a1,b1,c1,d1);
-    eigen3.print();
+    myMatrix.print();
+    std::cout<<determinant(myMatrix);
+    //eigen3.print();
     
 
 }
