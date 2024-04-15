@@ -1,13 +1,17 @@
-#include <vector>
-#include"Map.hpp"
+
 #include"Matrix.hpp"
+
+
 int main()
 {
     std::cout<<"\t\t########   Vector #######\n";
-    Vector_scratch<int> vector1 = {1, 2, 3, 4, 5};
+    Vector<int> vector1 = {1, 2, 3, 4, 5};
     std::cout<<"\n";
     std::cout << "Vector initialized with size 5: ";
     vector1.print(); 
+    std::cout<<"Normalisation:\n";
+    auto r=normalise(vector1);
+    r.print();
     std::cout<<"\n";
     Vector_scratch<int> vector2(vector1);
     std::cout << "Copied vector v2: ";
@@ -38,7 +42,7 @@ int main()
     Vector<int> v1 = {1,2,3,4,5,6,7,8,9,10,11};
     v1.reverse().print(); 
     std::cout<<"\n\n";
-     normalise(v1);
+    normalise(v1);
     std::cout << "Normalized vector1: ";
     v1.print();
     std::cout<<"\n\n";
@@ -74,7 +78,7 @@ int main()
     Matrix<int, 3, 3> matrix6 = matrix2.transpose();
     std::cout << "Transposed matrix:\n";
     matrix6.print();
-    std::cout << "Accumulated sum of elements: " << matrix2.accumulate() <<"\n\n";
+    
     Matrix<int, 2, 2> matrix7 = matrix2.slice<2, 2>(0, 2, 0, 2);
     std::cout << "Sliced matrix:0-0 to 2-2\n";
     matrix7.print();
@@ -95,7 +99,7 @@ int main()
     int b = -(mat_det[0][0] + mat_det[1][1]);
     int c = mat_det[0][0] * mat_det[1][1] - mat_det[0][1] * mat_det[1][0];
 
-    Matrix<int, 2, 1> eigen2=solveQuadraticEquation(a,b,c);
+    auto eigen2=solveQuadraticEquation(a,b,c);
     eigen2.print();
     Matrix<int, 3, 3> myMatrix;
     int values[9]={6,2,3,3,1,1,10,3,4};
@@ -111,7 +115,8 @@ int main()
     std::cout<<"adjoint of matrix is :\n";
     adj.print();
     std::cout << "Inverse of the matrix:\n";
-    Matrix<int, 3,3> inv=inverse(myMatrix);
+    auto inv=inverse(myMatrix);
     inv.print();
+    return 1;
 
 }
