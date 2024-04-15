@@ -4,12 +4,16 @@
 #include<math.h>
 
 
+//wrapper over the Vector container, adds a lot of functionalities over the base functionalities
+
 
 template<typename T>
 class Vector: public Vector_scratch<T>{
-    using Vector_scratch<T>::Vector_scratch;
+    using Vector_scratch<T>::Vector_scratch;  //Bringing all the methods in Vector_scratch container using an alias. It enables the constructors of the Vector_scratch<T> class to be directly usable in the current scope without explicit qualification.
 
 public:
+
+//simple operator overloads
     Vector<T>& operator +(T elem){
         for(int i=0;i<this->current;i++){
             this->container[i]+=elem;
@@ -34,7 +38,7 @@ public:
         }
         return (*this);
     }
-
+//const qualified overloads
     const Vector<T>& operator +(T elem) const{
         for(int i=0;i<this->current;i++){
             this->container[i]+=elem;
@@ -60,14 +64,20 @@ public:
         return (*this);
     }
 
+
+//some functions have been declared ahead of their implementation 
     Vector<T> reverse();
 
     double magnitude();
 
+
+//friend functions square and cube(these access the container variable directly)
     template<typename U> friend Vector<T> square();
 
     template<typename U> friend Vector<T> cube();
 
+
+//merge sort for sorting 
     void sort(){
         int left=0;
         int right=this->size()-1;
@@ -124,8 +134,14 @@ public:
 
 };
 
+//overload to print vector using a standard cout statement
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Vector<T>& vector) {
+    vector.print();
+    return os;
+}
 
-
+//Some statistical methods
 template<typename T>
 double mean(Vector<T> vec){
     double sum=0;
@@ -185,6 +201,9 @@ T manhattan_distance(Vector<T> v1,Vector<T> v2){
     }
 }
 
+
+
+//Friend functions being defined
 template<typename T>
 Vector<T> square(Vector<T> vec){
     if(!std::is_arithmetic_v<T>){
@@ -211,6 +230,7 @@ Vector<T> cube(Vector<T> vec){
 
 
 
+
 template<typename T>
 Vector<T> Vector<T>::reverse(){
     for(int i=0;i<this->current/2;i++){
@@ -231,38 +251,47 @@ double Vector<T>::magnitude(){
 }
 
 
+
+//Usage of type traits to normalise a vector
+
 template<typename T>
 struct IsVector: std::false_type{};
 
 template<typename T>
-struct IsVector<Vector<T>>:std::true_type{};
+struct IsVector<Vector<T>>:std::true_type{};  //defines what a vector is, quite intuitive but used it as a second stage check for normalisation
 
 template<typename Vec>
-void normalise(Vec &v){
+Vector<double> normalise(Vec &v){
     if constexpr (IsVector<Vec>::value){
         double mag=v.magnitude();
+        Vector<double> res;
         for(int i=0;i<v.size();i++){
-            v[i]=v[i]/mag;
+            res[i]=v[i]/mag;
         }
-
+    return res;
     }
     else{
         throw ("Normalisation not supported for non vector types\n");
     }
 }
 
-
+//Using a lambda template to calculate dot product between two vectors 
 auto dot=[]<typename T1, typename T2>(Vector<T1> v1,Vector<T2> v2){
     if(v1.size()!=v2.size()){
         throw("The two vectors dont have the same number of elements\n");
     }
 
+
+//Using type traits to determine if the result should be an int or a double.
+// If both vector contain only integer type elements, trivially the dot product of the two will also be an integer
     if constexpr (std::is_same_v<T1,T2> && std::is_integral_v<T1>){
         return static_cast<int>(dothelper(v1,v2));
     }
     else{
         return dothelper(v1,v2);
     }
+
+    
 
 
 };
