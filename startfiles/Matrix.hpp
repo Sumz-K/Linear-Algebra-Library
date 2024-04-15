@@ -3,6 +3,8 @@
 using namespace std;
 
 
+
+//concepts defined in a separate namespace scope
 namespace concepthelper{
     template<typename T>
     concept Arithmetic=std::is_arithmetic_v<T>;
@@ -12,11 +14,14 @@ namespace concepthelper{
 }
 
 
+//all Matrices must be of Arithmetic type
+
 template<typename T, int Rows, int Cols>
 requires concepthelper::Arithmetic<T>
 
 class Matrix {
 private:
+    //data is the container
     Vector<Vector<T>> data;
     int rows;
     int cols;
@@ -56,13 +61,14 @@ public:
         return Cols;
     }
 
+//overload to access a particular row of a matrix which is a vector
     Vector<T>& operator[](int index) {
         if (index < 0 || index >= Rows) {
             throw std::out_of_range("Row index out of range");
         }
         return data[index];
     }
-
+//const qualified
     const Vector<T>& operator[](int index) const {
         if (index < 0 || index >= Rows) {
             throw std::out_of_range("Row index out of range");
@@ -70,6 +76,7 @@ public:
         return data[index];
     }
 
+//another way to access a particular element of a matrix is to do mat(i,j)
     T& operator()(int i, int j) {
         if (i < 0 || i >= Rows || j < 0 || j >= Cols) {
             throw std::out_of_range("Index out of range");
@@ -84,6 +91,8 @@ public:
         return data[i][j];
     }
 
+
+//simple operator overloads
     Matrix<T, Rows, Cols>& operator=(const Matrix<T, Rows, Cols>& other) {
         if (this != &other) {
             data = other.data;
@@ -165,10 +174,15 @@ public:
 
     template<typename U>
     Matrix<T, Rows, Cols> operator/(const U& scalar) const {
+        Matrix<T,Rows,Cols>result;
         if constexpr (!is_arithmetic_v<U>){
             throw std::invalid_argument("Cant divide by a scalar of this type\n");
         }
-        Matrix<T,Rows,Cols>result;
+        if(scalar==0) {
+            throw std::invalid_argument("Cant divide by 0\n");
+            
+        }
+        
         for(int i=0;i<Rows;i++){
             result[i]=data[i]/scalar;
         }
@@ -177,15 +191,23 @@ public:
 
     template<typename U>
     Matrix<T, Rows, Cols> operator/(const U& scalar) {
+        Matrix<T,Rows,Cols>result;
         if constexpr (!is_arithmetic_v<U>){
             throw std::invalid_argument("Cant divide by a scalar of this type\n");
+            
         }
-        Matrix<T,Rows,Cols>result;
+        if(scalar==0) {
+            throw std::invalid_argument("Cant divide by 0\n");
+            
+        }
+        
         for(int i=0;i<Rows;i++){
             result[i]=data[i]/scalar;
         }
         return result;
     }
+
+//to find powers of matrix
 
     Matrix<T,Rows,Cols> operator^(int scalar) const{
         Matrix<T,Rows,Cols> res=(*this);
@@ -226,16 +248,17 @@ public:
             std::cout << std::endl;
         }
     }
-    T accumulate(){
-            T sum=0;
-            for(int i=0;i<this->numRows();i++){
-                Vector<T> temp=(*this)[i];
-                T temp_sum=temp.accumulate();
-                sum+=temp_sum;
+    void print() const {
+        for (int i = 0; i < Rows; ++i) {
+            for (int j = 0; j < Cols; ++j) {
+                std::cout << (*this)(i,j) << " ";
             }
-            return sum;
+            std::cout << std::endl;
+        }
     }
-    
+
+
+//slicing a matrix to form a submatrix, given number of rows and cols to be sliced
     template <int SlicedRows, int SlicedCols>
     Matrix<T, SlicedRows, SlicedCols> slice(int startrow, int endrow, int startcol, int endcol)
     {
@@ -260,6 +283,7 @@ public:
         return res;
     }
 
+//this will sort each individual row of the matrix
     void sort(){
         
         for(int i=0;i<Rows;i++){
@@ -273,13 +297,24 @@ public:
 
     
 
+
+    
+
     
 
 };
 
 
 
+//overload to print using cout statement
+template<typename T, int Rows, int Cols>
+std::ostream& operator<<(std::ostream& os, const Matrix<T, Rows, Cols>& matrix) {
+    matrix.print();
+    return os;
+}
 
+
+//matrix multiplication
 template<typename T,typename U,int r1,int c1,int r2,int c2>
 requires concepthelper::Arithmetic<T> && concepthelper::Arithmetic<U> && concepthelper:: Same<T,U> && (c1==r2)
 Matrix<T,r1,c2> multiply(Matrix<T,r1,c1> m1, Matrix<U,r2,c2> m2){
@@ -296,6 +331,8 @@ Matrix<T,r1,c2> multiply(Matrix<T,r1,c1> m1, Matrix<U,r2,c2> m2){
 
 
 
+//a matrix full of zeroes
+
 template<typename T,int r,int c>
 requires concepthelper::Arithmetic<T>
 Matrix<T,r,c> zeros(){
@@ -309,6 +346,8 @@ Matrix<T,r,c> zeros(){
 }
 
 
+//a matrix full of ones
+
 template<typename T,int r,int c>
 requires concepthelper::Arithmetic<T>
 Matrix<T,r,c> ones(){
@@ -321,6 +360,8 @@ Matrix<T,r,c> ones(){
     return m;
 }
 
+
+//identity matrix
 template<typename T,int r,int c>
 requires concepthelper::Arithmetic<T> && (r==c)
 Matrix<T,r,c> identitymatrix(){
@@ -337,12 +378,16 @@ Matrix<T,r,c> identitymatrix(){
 }
 
 
+
+//partial specialisation for 2x2 will use this as base case for recursion
 template<typename T>
 requires concepthelper::Arithmetic<T>
 T determinant(Matrix<T, 2, 2> mat){
     return mat[0][0]*mat[1][1]-mat[0][1]*mat[1][0];
 }
 
+
+//the original determinent function, no specialisation, recursive in nature
 template<typename T, int Rows, int Cols>
 requires concepthelper::Arithmetic<T> && (Rows == Cols) && (Rows > 2)
 T determinant(const Matrix<T, Rows, Cols>& mat) {
@@ -373,7 +418,7 @@ T determinant(const Matrix<T, Rows, Cols>& mat) {
     return det;
 }
 
-
+//to find cofactor of a matrix, will use this in multiple other functions
 
 template<typename T,int Rows,int Cols>
 requires (Rows==Cols && concepthelper::Arithmetic<T>)
@@ -406,6 +451,9 @@ Matrix<T,Rows,Cols> cofactor(Matrix<T,Rows,Cols> mat){
 }
 
 
+
+//to find adjoint of a matrix
+
 template<typename T, int Rows, int Cols>
 requires (Rows==Cols && concepthelper::Arithmetic<T>)
 Matrix<T, Rows, Cols> adjoint(Matrix<T, Rows, Cols>& mat) {
@@ -424,6 +472,8 @@ Matrix<T, Rows, Cols> adjoint(Matrix<T, Rows, Cols>& mat) {
 }
 
 
+
+//to find inverse of a matrix
 template<typename T,int Rows,int Cols>
 requires (Rows==Cols && concepthelper::Arithmetic<T>)
 Matrix<double,Rows,Cols> inverse(Matrix<T,Rows,Cols> mat){
@@ -442,6 +492,27 @@ Matrix<double,Rows,Cols> inverse(Matrix<T,Rows,Cols> mat){
     return result;
 }
 
+//partial specialisation for inverse, 2x2 case the inverse is simple hence specialised it
+
+template<typename T>
+Matrix<double,2,2> inverse(Matrix<T,2,2> mat){
+    Matrix<double,2,2> res;
+    res[0][0]=mat[1][1];
+    res[1][1]=mat[0][0];
+    res[0][1]=-mat[0][1];
+    res[1][0]=-mat[1][0];
+
+    for(int i=0;i<2;i++){
+        for(int j=0;j<2;j++){
+            res[i][j]=static_cast<double>(res[i][j])/determinant(mat);
+        }
+    }
+    return res;
+}
+
+
+
+//to find minor of a matrix
 
 
 template<typename T, int Rows, int Cols>
@@ -460,6 +531,8 @@ Matrix<T, Rows - 1, Cols - 1> minorf(const Matrix<T, Rows, Cols>& mat, int row, 
     return result;
 }
 
+
+//to solve a quadratic equation given the coefficients of each of its terms
 template<typename T>
 requires concepthelper::Arithmetic<T>
 Matrix<double, 2, 1> solveQuadraticEquation(T a, T b, T c) {
@@ -472,3 +545,29 @@ Matrix<double, 2, 1> solveQuadraticEquation(T a, T b, T c) {
     roots[1][0] = (-b - sqrt(discriminant)) / (2 * a);
     return roots;
 }
+
+
+
+
+//to solve a system of linear equations of the form Ax=b
+template<typename T,int Rows,int Cols>
+requires concepthelper::Arithmetic<T>
+Matrix<double,Rows,1> solvelinear(Matrix<T,Rows,Cols> A,Matrix<double,Rows,1> b){
+    //Ax=b
+    // need to find x
+    //double because inverse always returns double
+    T det=determinant(A);
+    if(det==0){
+        throw std::invalid_argument("This system of equations is not solveable\n");
+    }
+    else{
+        auto inv=inverse(A);
+        inv.print();
+        return multiply(inv,b);
+    }
+
+}
+
+
+
+
