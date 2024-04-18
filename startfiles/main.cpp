@@ -6,14 +6,15 @@ int main()
 {
     std::cout<<"\t\t########   Vector #######\n";
     Vector<int> vector1 = {1, 2, 3, 4, 5};
-    std::cout<<"\n";
+    cout<<"accumulate\n"<<vector1.accumulate<5>()<<"\n";
+    
     std::cout << "Vector initialized with size 5: ";
     vector1.print(); 
     std::cout<<"Normalisation:\n";
     auto r=normalise(vector1);
     r.print();
     std::cout<<"\n";
-    Vector_scratch<int> vector2(vector1);
+    Vector<int> vector2(vector1);
     std::cout << "Copied vector v2: ";
     vector2.print();
     std::cout<<"\n";
@@ -36,18 +37,17 @@ int main()
     vector1.del();
     std::cout << "Vector1 after deletion: ";
     vector1.print(); 
-        std::cout<<"\n";
+    std::cout<<"\n";
     std::cout << "Reversed vector1: ";
 
     Vector<int> v1 = {1,2,3,4,5,6,7,8,9,10,11};
+
     v1.reverse().print(); 
     std::cout<<"\n\n";
-    normalise(v1);
-    std::cout << "Normalized vector1: ";
-    v1.print();
     std::cout<<"\n\n";
     std::cout << "Magnitude of vector1: " << v1.magnitude() <<"\n\n";
     Vector<int> vector3 = {1, 2, 3};
+    //cout<<vector3[0];
     Vector<int> vector4 = {4, 5, 6};
     std::cout<<"Vector<int> vector3 = {1, 2, 3};\nVector<int> vector4 = {4, 5, 6};\n\n";
     std::cout << "Dot product of vector3 and vector4: " << dot(vector3, vector4) <<"\n\n";
@@ -116,7 +116,13 @@ int main()
     adj.print();
     std::cout << "Inverse of the matrix:\n";
     auto inv=inverse(myMatrix);
+
+
+    cout<<inv<<"\n";
     inv.print();
-    return 1;
+
+
+    Matrix<int,4,4> m99={{1,4,1,6},{-1,1,2,10},{3,6,1,8},{4,1,1,1}};
+    cout<<determinant(m99);
 
 }
